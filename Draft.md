@@ -2,4 +2,6 @@
 
 This is a test file to be saved.
 
-There used to be a list here...
+- List item
+- List item
+- List item
