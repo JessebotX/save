@@ -1,6 +1,7 @@
 package main
 
 import (
+	"compress/gzip"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,8 +9,8 @@ import (
 )
 
 func main() {
-	saveDir := ".save"
-	if err := os.MkdirAll(saveDir, 0755); err != nil {
+	repoDir := ".save"
+	if err := os.MkdirAll(repoDir, 0755); err != nil {
 		errExit(1, err.Error())
 	}
 
@@ -18,7 +19,7 @@ func main() {
 	targetPath := filepath.Join("Draft.md")
 	targetExtension := filepath.Ext(targetPath)
 	newFileBaseName := formattedTime + "--" + "draft" + targetExtension
-	newFilePath := filepath.Join(saveDir, newFileBaseName)
+	newFilePath := filepath.Join(repoDir, newFileBaseName)
 
 	body, err := os.ReadFile(targetPath)
 	if err != nil {
