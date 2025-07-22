@@ -1,3 +1,18 @@
 #!/usr/bin/env python
 
+import datetime
+import pathlib
+import shutil
 
+if __name__ == '__main__':
+    repo_dir = pathlib.Path('.save')
+    formatted_time = datetime.datetime.now().strftime('%Y%m%dT%H%M%S')
+    target_path = pathlib.Path('Draft.md')
+    new_filename = str(pathlib.Path(str(target_path).lower()))
+    new_path = pathlib.Path(repo_dir, formatted_time + '--' + new_filename)
+
+    repo_dir.mkdir(parents=True, exist_ok=True)
+
+    shutil.copyfile(target_path, new_path)
+
+    print("Saved", target_path, "as", new_path)
