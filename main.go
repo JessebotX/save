@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"compress/gzip"
 	"fmt"
 	"os"
@@ -8,7 +9,14 @@ import (
 	"time"
 )
 
+type Opts struct {
+	GZIP bool
+}
+
 func main() {
+	var opts Opts
+	opts.GZIP = false // TODO: parse cli
+
 	repoDir := ".save"
 	if err := os.MkdirAll(repoDir, 0755); err != nil {
 		errExit(1, err.Error())
@@ -26,19 +34,41 @@ func main() {
 		errExit(1, err.Error())
 	}
 
-	f, err := os.Create(newFilePath)
-	if err != nil {
-		errExit(1, err.Error())
-	}
-	defer f.Close()
+	if opts.GZIP {
+		newFileBaseName += ".gz"
+		newFilePath += ".gz"
 
-	n, err := f.Write(body)
-	if err != nil {
-		errExit(1, err.Error())
-	}
-	_ = n
+		var compressedBuffer bytes.Buffer
+		w := gzip.NewWriter(&compressedBuffer)
+		w.Write(body)
+		w.Close()
 
-	fmt.Println(newFileBaseName)
+		f, err := os.Create(newFilePath)
+		if err != nil {
+			errExit(1, err.Error())
+		}
+		defer f.Close()
+
+		n, err := f.Write(compressedBuffer.Bytes())
+		if err != nil {
+			errExit(1, err.Error())
+		}
+		_ = n
+	} else {
+		f, err := os.Create(newFilePath)
+		if err != nil {
+			errExit(1, err.Error())
+		}
+		defer f.Close()
+
+		n, err := f.Write(body)
+		if err != nil {
+			errExit(1, err.Error())
+		}
+		_ = n
+	}
+
+	fmt.Printf("Saved %v at %v\n", targetPath, formattedTime)
 }
 
 func errExit(status int, format string, a ...any) {
