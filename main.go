@@ -4,25 +4,33 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
 func main() {
-	// directory to save it to
-	repoDir := ".save"
-	if err := os.MkdirAll(repoDir, 0755); err != nil {
-		errExit(1, err.Error())
+	if len(os.Args) < 2 {
+		errExit(2, "usage: %s <file...>", os.Args[0])
 	}
+	repoDir := ".save"
 
 	currentTime := time.Now()
 	formattedTime := currentTime.Format("20060102T150405")
-	targetPath := filepath.Join("Draft.md")
+
+	targetPath := os.Args[1]
 	targetExtension := filepath.Ext(targetPath)
-	newFileBaseName := formattedTime + "--" + "draft" + targetExtension
+	targetNoExtension := strings.TrimSuffix(targetPath, targetExtension)
+
+	newFileBaseName := formattedTime + "--" + strings.ToLower(targetNoExtension) + targetExtension
 	newFilePath := filepath.Join(repoDir, newFileBaseName)
 
 	body, err := os.ReadFile(targetPath)
 	if err != nil {
+		errExit(1, err.Error())
+	}
+
+	// directory to save it to
+	if err := os.MkdirAll(repoDir, 0755); err != nil {
 		errExit(1, err.Error())
 	}
 
@@ -38,7 +46,7 @@ func main() {
 	}
 	_ = n
 
-	fmt.Println(newFileBaseName)
+	fmt.Println("saved", newFileBaseName, "to", repoDir)
 }
 
 func errExit(status int, format string, a ...any) {
